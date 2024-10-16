@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout1}">
+
+<!-- 사용자 CSS 추가 -->
+<th:block layout:fragment="css">
+    <style>
+        .fieldError {
+            color: #bd2130;
+        }
+.form-group{
+    width: 800px;
+    /*margin-left: 650px;*/
+    margin-left: 450px;
+}
+        label {
+            display: inline-block;
+            color: black;
+            font-weight: bold;
+            font-size: 18px;
+        }
+            #registerBtn {
+                margin-top: 40px;
+                margin-right: 240px;
+        }
+            .form-group{
+                margin-bottom: 10px;
+            }
+    </style>
+</th:block>
+
+<div layout:fragment="content" style="margin-top: 140px; margin-left: 215px;">
+    <form action="/members/new" role="form" method="post" th:object="${memberFormDto}">
+        <!--        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">-->
+        <div class="form-group">
+            <label for="name">이름</label>
+            <input type="text" th:field="*{name}" class="form-control" placeholder="이름을 입력해주세요">
+            <p th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="fieldError">잘못된 데이터입니다</p>
+        </div>
+        <div class="form-group">
+            <label for="email">이메일주소</label>
+            <div class="input-group">
+                <input type="email" th:field="*{email}" id="mail" class="form-control" placeholder="이메일을 입력해주세요">
+                <div class="input-group-append">
+                    <button type="button" id="sendBtn" name="sendBtn" class="btn btn-primary" onclick="sendNumber()">인증번호 발송</button>
+                </div>
+            </div>
+            <p th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="fieldError">잘못된 데이터입니다</p>
+        </div>
+        <br>
+        <div id="mail_number" name="mail_number" style="display: none; margin-right: 500px;">
+            <input type="text" name="number" id="number" class="form-control" style="margin-left: 810px;width:250px; display: inline-block;" placeholder="인증번호 입력">
+            <button type="button" name="confirmBtn" id="confirmBtn" class="btn btn-primary" style="display: inline-block;" onclick="confirmNumber()">이메일 인증</button>
+            <input type="hidden" id="Confirm" name="Confirm">
+        </div>
+        <div class="form-group">
+            <label for="password">비밀번호</label>
+            <input type="password" th:field="*{password}" class="form-control" placeholder="비밀번호 입력해주세요">
+            <p th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="fieldError">잘못된 데이터입니다</p>
+        </div>
+
+        <div class="form-group">
+            <label for="phone">전화번호</label>
+            <input type="text" th:field="*{phone}" class="form-control" placeholder="ex)  '-'언더바는 생략해주세요">
+            <p th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}" class="fieldError">잘못된 입력 값 입니다</p>
+        </div>
+
+
+        <div class="form-group">
+            <label for="address">우편번호</label>
+            <div class="input-group">
+                <input type="text" id="postcode" th:field="*{address}" class="form-control" placeholder="우편번호를 입력해주세요">
+                <div class="input-group-append">
+                    <button type="button" class="btn btn-primary" onclick="findPostcode()">우편번호 찾기</button>
+                </div>
+            </div>
+            <p th:if="${#fields.hasErrors('address')}" th:errors="*{address}" class="fieldError">잘못된 데이터입니다</p>
+        </div>
+        <div class="form-group">
+            <label for="streetAddress">도로명 주소</label>
+            <input type="text" id="streetAddress" th:field="*{streetAddress}" class="form-control" placeholder="도로명 주소를 입력해주세요">
+            <p th:if="${#fields.hasErrors('streetAddress')}" th:errors="*{streetAddress}" class="fieldError">잘못된 데이터입니다</p>
+        </div>
+        <div class="form-group">
+            <label for="detailAddress">상세 주소</label>
+            <input type="text" id="detailAddress" th:field="*{detailAddress}" class="form-control" placeholder="상세 주소를 입력해주세요">
+            <p th:if="${#fields.hasErrors('detailAddress')}" th:errors="*{detailAddress}" class="fieldError">잘못된 데이터입니다</p>
+        </div>
+
+        <div style="text-align: center">
+            <button type="submit" class="btn btn-primary" id="registerBtn">회원가입</button>
+        </div>
+    </form>
+</div>
+
+<!-- 사용자 스크립트 추가 -->
+<th:block layout:fragment="script">
+    <script src="https://ssl.daumcdn.net/dmaps/map_js_init/postcode.v2.js"></script>
+    <script th:inline="javascript">
+        $(document).ready(function() {
+            var errorMessage = /*[[${errorMessage}]]*/ null;
+            if (errorMessage != null) {
+                alert(errorMessage);
+            }
+
+            // 회원가입 폼 제출 이벤트 바인딩
+            $("form").submit(function(event) {
+                // 인증번호가 입력되지 않았을 경우
+                if ($("#Confirm").val().trim() === '') {
+                    alert("이메일 인증을 진행해주세요.");
+                    event.preventDefault(); // 폼 제출 방지
+                }
+            });
+
+
+        });
+
+        function findPostcode() {
+            new daum.Postcode({
+                oncomplete: function(data) {
+                    // 우편번호와 주소 정보를 해당 필드에 넣기
+                    $('#postcode').val(data.zonecode);
+                    $('#streetAddress').val(data.roadAddress);
+                }
+            }).open();
+        }
+
+        // function succesRegister(){
+        //     alert('회원가입을 환영합니다!')
+        // }
+
+        function sendNumber() {
+
+            let email = $("#mail").val();
+            let token = $('input[name="_csrf"]').val();
+
+            if(email === ''){
+                alert('이메일을 입력해주세요.')
+                return false;
+            }else {
+                $("#mail_number").css("display", "block");
+                $.ajax({
+                    type: "POST",
+                    url: "/mail",
+                    headers: {
+                        "X-CSRF-TOKEN": token
+                    },
+                    data: {
+                        mail: email
+                    },
+                    success: function (data) {
+                        alert("인증번호 발송");
+                        $("#Confirm").val(data.number || data);
+                        console.log("인증번호 : ", data.number || data);
+
+
+                    },
+                    error: function (xhr, status, error) {
+                        alert("이메일 발송 중 오류가 발생했습니다: " + error);
+                    }
+                });
+            }
+        }
+
+        function confirmNumber() {
+            var number1 = $("#number").val().trim();
+            var number2 = $("#Confirm").val().trim();
+
+            if (number1 === number2) {
+                alert("인증되었습니다.");
+            } else {
+                alert("인증번호를 다시 입력해주세요.");
+            }
+        }
+
+
+    </script>
+</th:block>
+
+</html>

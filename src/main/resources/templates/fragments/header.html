@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<div th:fragment="header">
+
+    <nav class="main-menu d-flex navbar fixed-top navbar-expand-lg py-4 ">
+        <div class="container">
+            <div class="main-logo">
+                <a th:href="@{/}">
+                    <img src="/image/logo.png" alt="logo" class="img-fluid">
+                </a>
+            </div>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar"
+                    aria-controls="offcanvasNavbar">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
+
+                <div class="offcanvas-header justify-content-center">
+                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                </div>
+
+                <div class="offcanvas-body justify-content-between">
+
+                    <ul class="navbar-nav menu-list list-unstyled d-flex gap-md-3 ps-lg-5 mb-0">
+                        <li class="nav-item">
+                            <a th:href="@{/}" class="nav-link mx-2 active">홈</a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link mx-2 dropdown-toggle" role="button" id="pages" data-bs-toggle="dropdown"
+                               aria-expanded="false">카테고리</a>
+                            <ul class="dropdown-menu" aria-labelledby="pages">
+                                <li><a href="about.html" class="dropdown-item">상의</a></li>
+                                <li><a href="shop.html" class="dropdown-item">바지</a></li>
+                                <li><a href="single-product.html" class="dropdown-item">가방</a></li>
+                                <li><a href="cart.html" class="dropdown-item">아우터</a></li>
+                                <li><a href="wishlist.html" class="dropdown-item">기타</a></li>
+                            </ul>
+                        </li>
+                        <li sec:authorize="hasAnyAuthority('ROLE_ADMIN')" class="nav-item">
+                            <a th:href="@{/admin/item/new}" class="nav-link mx-2">상품 등록</a>
+                        </li>
+                    </ul>
+
+                    <div class="d-none d-lg-flex align-items-end">
+                        <ul class="d-flex justify-content-end list-unstyled m-0">
+                            <li sec:authorize="isAnonymous()">
+                                <a  th:href="@{/members/login}" class="mx-3">
+                                    로그인
+                                </a>
+                            </li>
+                            <li sec:authorize="isAuthenticated()">
+                                <a th:href="@{/members/logout}" class="mx-3">
+                                    로그아웃
+                                </a>
+                            </li>
+                            <li sec:authorize="isAnonymous()">
+                                <a th:href="@{/members/login}" class="mx-3">
+                                    <iconify-icon icon="healthicons:person" class="fs-4"></iconify-icon>
+                                </a>
+                            </li>
+                            <li sec:authorize="isAuthenticated()">
+                                <a th:href="@{/members/loginInfo}" class="mx-3">
+                                    <iconify-icon icon="healthicons:person" class="fs-4"></iconify-icon>
+                                </a>
+                            </li>
+<!--                            <li>-->
+<!--                                <a href="wishlist.html" class="mx-3">-->
+<!--                                    <iconify-icon icon="mdi:heart" class="fs-4"></iconify-icon>-->
+<!--                                </a>-->
+<!--                            </li>-->
+
+                            <li sec:authorize="isAuthenticated()">
+                                <a th:href="@{/cart}" class="mx-3"
+                                  >
+                                    <iconify-icon icon="mdi:cart" class="fs-4 position-relative"></iconify-icon>
+                                    <th:block th:if="${cartCount} != null">
+                                    <span th:text="${cartCount}" class="position-absolute translate-middle badge rounded-circle bg-primary">
+                  </span>
+
+                                    </th:block>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a href="#" class="mx-3" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSearch"
+                                   aria-controls="offcanvasSearch">
+                                    <iconify-icon icon="tabler:search" class="fs-4"></iconify-icon>
+                                </a>
+                            </li>
+
+                        </ul>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+        <div class="container d-lg-none">
+            <div class="d-flex  align-items-end mt-3">
+                <ul class="d-flex justify-content-end list-unstyled m-0">
+                    <li>
+                        <a href="account.html" class="me-4">
+                            <iconify-icon icon="healthicons:person" class="fs-4 me-2"></iconify-icon>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="wishlist.html" class="me-4">
+                            <iconify-icon icon="mdi:heart" class="fs-4 me-2"></iconify-icon>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="#" class="me-4" data-bs-toggle="offcanvas" data-bs-target="#offcanvasCart"
+                           aria-controls="offcanvasCart">
+                            <iconify-icon icon="mdi:cart" class="fs-4 me-2 position-relative"></iconify-icon>
+                            <span class="position-absolute translate-middle badge rounded-circle bg-primary">
+                03
+              </span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="#" class="me-4" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSearch"
+                           aria-controls="offcanvasSearch">
+                            <iconify-icon icon="tabler:search" class="fs-4 me-2"></iconify-icon>
+                        </a>
+                    </li>
+                </ul>
+
+            </div>
+        </div>
+    </nav>
+
+
+
+</div>
+</html>

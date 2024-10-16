@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout1}">
+<th:block layout:fragment="script">
+    <script
+            type="text/javascript"
+            src="https://cdn.iamport.kr/js/iamport.payment-1.2.0.js"
+    ></script>
+    <script>
+
+        console.log('테스트입니다..')
+
+
+        var IMP = window.IMP;
+        IMP.init("imp24034620");
+
+        function requestPay() {
+            var itemNm = $("#itemNm0").text();
+            console.log('itemNm' + itemNm)
+
+            var elements = document.querySelectorAll('div[id="itemInfoComponent"]');
+            // 요소의 개수를 저장
+            var itemCount = elements.length;
+
+            var totalPrice = $("#totalPrice").text();
+            console.log('itemCount' + itemCount)
+            if(itemCount > 1){
+                var payItemNm =  itemNm+ ' 외' + (itemCount-1) + '개';
+            }else{
+                var payItemNm = itemNm;
+            }
+
+            IMP.request_pay(
+                {
+                    pg: "html5_inicis",		//KG이니시스 pg파라미터 값
+                    pay_method: "card",		//결제 방법
+                    merchant_uid: "1234578",//주문번호
+                    name: payItemNm,		//상품 명
+                    amount: totalPrice,			//금액
+                    buyer_email: "gildong@gmail.com",
+                    buyer_name: "홍길동",
+                    buyer_tel: "010-4242-4242",
+                    buyer_addr: "서울특별시 강남구 신사동",
+                    buyer_postcode: "01181"
+                },
+                function (rsp) {
+                    //rsp.imp_uid 값으로 결제 단건조회 API를 호출하여 결제결과를 판단합니다.
+                    if (rsp.success) {
+                        //서버 검증 요청 부분
+                    } else {
+                        alert("결제에 실패하였습니다. 에러 내용: " + rsp.error_msg);
+                    }
+                }
+            );
+        }
+    </script>
+</th:block>
+
+<th:block layout:fragment="css">
+    <style>
+        .carousel-inner > .item {
+            height: 350px;
+        }
+
+        a:hover{
+            text-decoration:none;
+        }
+
+        #addressComponent{
+            padding: 30px;
+            height: 400px;
+            width: 1000px;
+            margin: auto;
+            margin-bottom: 15px;
+            border-style: solid;
+            border-width: 1px;
+            border-radius: 12px;
+        }
+        #itemHeader{
+            width: 1000px;
+            height: 50px;
+            margin: auto;
+            border-style: solid;
+            border-width: 1px;
+            border-radius: 5px;
+            padding: 5px;
+
+        }
+        p{
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        #addressComponent > #addChn{
+            text-align: right;
+        }
+
+        #itemInfoComponent{
+            padding: 30px;
+            height: 330px;
+            width: 1000px;
+            margin: auto;
+            margin-bottom: 9px;
+            border-style: solid;
+            border-width: 1px;
+            border-radius: 7px;
+        }
+
+        .orderMenu{
+            all: unset;
+        }
+
+        .scroll-area{
+            overflow-y: scroll;
+            height: 1164px;
+        }
+
+        img{
+            width: 150px;
+            height: 150px;
+        }
+        #final{
+            padding: 30px;
+            height: 300px;
+            width: 1000px;
+            margin: auto;
+            border-style: solid;
+            border-width: 1px;
+            border-radius: 5px;
+            margin-bottom: 100px;
+        }
+        #orderpay{
+            cursor: pointer;
+            border-radius: 5px;
+            background: black;
+            color: white;
+            width: 400px;
+            height: 50px;
+            font-weight: bold;
+            font-size: 19px;
+            /*임시*/
+            position: absolute;
+            top: 1467px;
+            left: 850px;
+        }
+        #addAddr{
+
+        }
+        .headerText{
+            font-weight: bold;
+            font-size: 17px;
+            color: black;
+        }
+
+        .itemHeader{
+            color:black;
+            font-weight: bold;
+        }
+        #itemInfo{
+        }
+        select {
+            word-wrap: normal;
+            margin-top: 100px;
+            height: 50px;
+            font-weight: bold;
+            text-align: center;
+        }
+    </style>
+</th:block>
+
+<div layout:fragment="content" style="margin-top:100px;">
+    <div class="scroll-area1">
+        <div id="addressComponent">
+
+
+            <p class="itemHeader">배송지</p>
+            <span class="headerText">주문자 명 </span><span th:text="${member.name}"></span><br>
+            <th:block th:if="${member.phone} == null or ${member.phone} == ''">
+              <label>입력된 전화번호가 없습니다.</label>  <a href="/members/phone" id="addPho"> 전화번호 등록</a>
+            </th:block>
+            <span class="headerText">전화번호 </span><span th:text="${member.phone}"></span><br>
+            <th:block th:if="${member.address} == null or ${member.address} == ''">
+                <a href="/members/address" id="addAddr">입력된 배송지가 없습니다. 배송지를 등록해주세요</a>
+            </th:block>
+            <th:block th:if="${member.address} != null and ${member.address} != ''">
+                <span class="headerText">주소지</span> <span th:text="${member.streetAddress +''+ member.detailAddress}"><a href="/members/address" id="addChn">배송지 변경</a></span>
+            </th:block>
+
+            <!--    <span th:text="${member.phone}"></span>-->
+            <span th:if="${member.address != null}">
+    <span th:text="${member.address}"></span>
+         </span><br>
+            <span class="headerText">요청사항 </span>
+            <select name="deliveryMessage">
+                <option value="부재 시 집 앞에 놔주세요">부재 시 집 앞에 놔주세요</option>
+                <option value="배송 시 요청사항을 선택해주세요">배송 시 요청사항을 선택해주세요</option>
+                <option value="부재 시 경비실에 맡겨주세요">부재 시 경비실에 맡겨주세요</option>
+                <option value="부재 시 택배함에 넣어주세요">부재 시 택배함에 넣어주세요</option>
+                <option value="배송 전 연락바랍니다">배송 전 연락바랍니다</option>
+            </select>
+
+        </div>
+        <div id="itemHeader"><p class="itemHeader">상품 정보</p></div>
+        <th:block th:each="item, iterStat : ${items}">
+            <div id="itemInfoComponent">
+
+                <img th:src="${item.imgUrl}" th:alt="${item.itemNm}">
+               <div th:id="itemInfo"> <span class="headerText">제품 명  </span><span th:id="'itemNm' + ${iterStat.index}" th:text="${item.itemNm}"/><br></div>
+                <span th:text="'구매 수량'+ ${item.count} +'개'"/><br>
+                <span th:text="'옵션 ' + ${item.itemSize}"></span><br>
+
+                <span th:text="${item.price}+'원'"></span>
+
+            </div>
+        </th:block>
+
+        <div id="final">
+            <p class="itemHeader">최종 결제 금액</p><br>
+
+
+            <span th:text="'상품금액 '+ ${allPrice}"></span><br>
+            <span th:text="'배송비 '+ 3000"></span><br>
+            <span>총 결제 금액</span>   <span th:id="totalPrice" th:name="totalPrice" th:text="${allPrice + 3000}"/>
+
+            <button type="button" th:id="orderpay" onclick="requestPay()">결제</button>
+
+        </div>
+    </div>
+</div>
+</html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout1}">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <th:block layout:fragment="css">
+        <style>
+        .content {margin-top: 180px;
+            /*margin-left: 900px;*/
+            margin-left: 700px;
+        }
+        .checkboxDiv{
+            margin-top: 70px;
+            font-size: 19px;
+            font-weight: bold;
+            color: black;
+        }
+        #registerBtn{
+            width:300px;
+            margin-top: 160px;
+            margin-left: 200px;
+        }
+        #agree_all{
+            position: absolute;
+            opacity: 0;
+            z-index: -1;
+            font-size: 22px;
+        }
+
+        .agree_all_label{
+            display: inline-block;
+            width: 22px;
+            height: 22px;
+            background-color: white;
+            border-radius: 50%;
+            border: 2px solid #ccc;
+            cursor: pointer;
+            position: relative;
+        }
+        #agree_all:checked + .agree_all_label::after{
+            content: '';
+            display: block;
+            width: 14px;
+            height: 14px;
+            background-color: dodgerblue;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .agree_all_text{
+            font-size: 22px;
+            margin-bottom: 5px;
+        }
+        .check_sub{
+            margin-left:5px;
+        }
+        </style>
+    </th:block>
+</head>
+<body>
+<div layout:fragment="content" class="content">
+    <h1>환영합니다!<br>
+    가입하시려면 약관에 동의해주세요!</h1>
+    <div class="checkboxDiv">
+        <div>
+            <input type="checkbox" name="agree_all" id="agree_all">
+            <label for="agree_all" class="agree_all_label"></label>
+            <label for="agree_all" class="agree_all_text">약관 전체 동의하기</label>
+        </div>
+        <div class="striped">
+            <span class="striped-line"></span>
+            <span class="striped-line"></span>
+        </div>
+        <div class="check_sub">
+            <input type="checkbox" name="agree" value="1" id="check_1">
+            <label for="agree"> 이용약관 동의<strong>(필수)</strong>
+            </label>
+        </div>
+        <div class="check_sub">
+            <input type="checkbox" name="agree" value="2" id="check_2">
+            <label for="agree">개인정보 수집, 이용 동의<strong>(필수)</strong></label>
+        </div>
+
+        <div class="check_sub">
+            <input type="checkbox" name="agree" value="3" id="check_3">
+            <label for="agree">
+                <span>개인정보 이용 동의<strong>(필수)</strong></span>
+            </label>
+        </div>
+
+        <div class="check_sub">
+            <input type="checkbox" name="agree" value="4">
+            <label for="agree">이벤트, 혜택정보 수신동의<strong class="select_disable">(선택)</strong></label>
+        </div>
+    </div>
+    <button type="button" id="registerBtn" class="btn btn-primary" >회원가입</button>
+</div>
+
+
+</body>
+<th:block layout:fragment="script">
+    <script th:inline="javascript">
+    $(document).ready(function() {
+        $("#registerBtn").on("click",function(e){
+            if($("#check_1").is(":checked") === false){
+                alert("모든 필수 약관에 동의 하셔야 다음 단계로 진행 가능합니다");
+                return false;
+            }if($("#check_2").is(":checked") === false){
+                alert("모든 필수 약관에 동의 하셔야 다음 단계로 진행 가능합니다");
+                return false;
+            }if($("#check_3").is(":checked") === false){
+                alert("모든 필수 약관에 동의 하셔야 다음 단계로 진행 가능합니다.");
+                return false;
+            }
+            alert("회원가입을 진행해주세요!");
+            window.location.href = '/members/new';
+        });
+
+        const agreeChkAll = document.querySelector('input[name=agree_all]');
+        agreeChkAll.addEventListener('change', (e) => {
+            let agreeChk = document.querySelectorAll('input[name=agree]');
+            for(let i = 0; i < agreeChk.length; i++){
+                agreeChk[i].checked = e.target.checked;
+            }
+        });
+    });
+    </script>
+</th:block>
+</html>

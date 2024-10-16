@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout1}">
+
+<head>
+    <!--    <meta name="_csrf" th:content="${_csrf.token}"/>-->
+    <!--    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>-->
+</head>
+
+<!-- 사용자 스크립트 추가 -->
+<th:block layout:fragment="script">
+    <script th:inline="javascript">
+        $(document).ready(function(){
+
+            calculateToalPrice();
+
+            $("#count").change( function(){
+                calculateToalPrice();
+            });
+        });
+
+        function calculateToalPrice(){
+            var count = $("#count").val();
+            var price = $("#price").val();
+            var totalPrice = price*count;
+            $("#totalPrice").html(totalPrice + '원');
+        }
+
+        function order(){
+            // var token = $("meta[name='_csrf']").attr("content");
+            // var header = $("meta[name='_csrf_header']").attr("content");
+
+            var url = "/order";
+            var paramData = {
+                itemId : $("#itemId").val(),
+                count : $("#count").val()
+            };
+            console.log('itemId의 값' + itemId)
+            var param = JSON.stringify(paramData);
+            console.log('param값:' + param);
+            $.ajax({
+                url      : url,
+                type     : "POST",
+                contentType : "application/json",
+                data     : param,
+                // beforeSend : function(xhr){
+                //     /* 데이터를 전송하기 전에 헤더에 csrf값을 설정 */
+                //     xhr.setRequestHeader(header, token);
+                // },
+                dataType : "json",
+                cache   : false,
+                success  : function(result, status){
+                    alert("주문이 완료 되었습니다.");
+                    location.href='/';
+                },
+                error : function(jqXHR, status, error){
+
+                    if(jqXHR.status == '401'){
+                        alert('로그인 후 이용해주세요');
+                        location.href='/members/login';
+                    } else{
+                        alert(jqXHR.responseText);
+                    }
+
+                }
+            });
+        }
+
+        function addCart(){
+            console.log('찍히긴합니까?')
+            var selectElement = document.getElementById('custom-select');
+            var selectedOption = selectElement.options[selectElement.selectedIndex];
+            var selectedValue = selectElement.value;
+            var innerText = selectedOption.textContent.trim();
+
+            var stockNumber = innerText.match(/재고: (\d+)/)[1];
+
+            console.log('Stock Number: ' + stockNumber);
+
+            console.log('Selected Text: ' + innerText);
+            console.log("선택된 값: " + selectedValue);
+            if(stockNumber === '0'){
+                alert('재고가 없는 제품은 주문 및 담기가 불가능합니다.')
+                return false;
+            }
+            var token = $("meta[name='_csrf']").attr("content");
+            var header = $("meta[name='_csrf_header']").attr("content");
+
+            var url = "/cart";
+            var paramData = {
+                itemId : $("#itemId").val(),
+                count : $("#count").val(),
+                itemSize : selectedValue
+            };
+
+            console.log('itemId의 값' + itemId)
+
+
+            var param = JSON.stringify(paramData);
+
+            $.ajax({
+                url      : url,
+                type     : "POST",
+                contentType : "application/json",
+                data     : param,
+                // beforeSend : function(xhr){
+                //     /* 데이터를 전송하기 전에 헤더에 csrf값을 설정 */
+                //     xhr.setRequestHeader(header, token);
+                // },
+                dataType : "json",
+                cache   : false,
+                success  : function(result, status){
+                    alert("상품을 장바구니에 담았습니다.");
+                    location.href='/';
+                },
+                error : function(jqXHR, status, error){
+
+                    if(jqXHR.status == '500'){
+                        alert('로그인 후 이용해주세요');
+                        location.href='/members/login';
+                    } else{
+                        alert(jqXHR.responseText);
+                    }
+
+                }
+            });
+        }
+    </script>
+    <script
+            type="text/javascript"
+            src="https://cdn.iamport.kr/js/iamport.payment-1.2.0.js"
+    ></script>
+
+    <script>
+        var IMP = window.IMP;
+        IMP.init("imp24034620");
+
+        function requestPay() {
+            IMP.request_pay(
+                {
+                    pg: "html5_inicis",		//KG이니시스 pg파라미터 값
+                    pay_method: "card",		//결제 방법
+                    merchant_uid: "1234578",//주문번호
+                    name: "당근 10kg",		//상품 명
+                    amount: 200,			//금액
+                    buyer_email: "gildong@gmail.com",
+                    buyer_name: "홍길동",
+                    buyer_tel: "010-4242-4242",
+                    buyer_addr: "서울특별시 강남구 신사동",
+                    buyer_postcode: "01181"
+                },
+                function (rsp) {
+                    //rsp.imp_uid 값으로 결제 단건조회 API를 호출하여 결제결과를 판단합니다.
+                    if (rsp.success) {
+                        //서버 검증 요청 부분
+                    } else {
+                        alert("결제에 실패하였습니다. 에러 내용: " + rsp.error_msg);
+                    }
+                }
+            );
+        }
+    </script>
+</th:block>
+
+<!-- 사용자 CSS 추가 -->
+<th:block layout:fragment="css">
+    <style>
+        .mgb-15{
+            margin-bottom: 15px;
+            color: black;
+        }
+        .mgt-30{
+            margin-top:30px;
+        }
+        .mgt-50{
+            margin-top:50px;
+        }
+        .repImgDiv{
+            height:auto;
+            width:50%;
+        }
+        .repImg{
+            width: 500px;
+            height: 600px;
+            margin-top: 40px;
+        }
+        .wd50{
+            height:auto;
+            width:50%;
+        }
+        .star-rating {
+            display: inline-block;
+            font-size: 0;
+        }
+        .star-rating span {
+            font-size: 2rem;
+            color: gold;
+            cursor: pointer;
+        }
+        .text-danger1 {
+            --bs-text-opacity: 1;
+            color: black;
+        }
+        #ratingText{
+            font-size: 17px;
+        }
+        @media (min-width: 1200px) {
+            .h4, h4 {
+                font-size: 1.8rem;
+                color: black;
+            }
+        }
+        #custom-select{
+            margin-bottom: 10px;
+            height: 38px;
+            width: 149px;
+            padding-left: 13px;
+        }
+        .formControl{
+            font-size: 1.2rem;
+            color: black;
+            line-height: normal;
+            letter-spacing: 0.02125rem;
+            text-transform: none;
+            border-radius: 0.25rem;
+            border: 1px solid rgba(65, 64, 62, 0.20);
+            background: #FFF;
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+            align-self: stretch;
+            padding-left: 3px;
+            width:100px;
+            text-align: center;
+            margin-bottom: 60px;
+            height: 37px;
+        }
+
+
+
+    </style>
+</th:block>
+
+<div layout:fragment="content" style="margin-left:25%;margin-right:25%; margin-top: 98px;">
+
+    <input type="hidden" id="itemId" th:value="${item.id}">
+
+    <div class="d-flex">
+        <div class="repImgDiv">
+            <!--            <img th:src="${item.itemImgDtoList[0].oriUrl}" class = "rounded repImg" th:alt="${item.itemNm}">-->
+            <img th:src="${item.itemImgDtoList[0].imgUrl}" class = "rounded repImg" th:alt="${item.itemNm}">
+        </div>
+        <div class="wd50">
+            <span th:if="${item.itemSellStatus == T(com.shop.constant.ItemSellStatus).SELL}" class="badge badge-primary mgb-15">
+                판매중
+            </span>
+            <span th:unless="${item.itemSellStatus == T(com.shop.constant.ItemSellStatus).SELL}" class="badge btn-danger mgb-15" >
+                품절
+            </span>
+            <div class="h4" th:text="${item.itemNm}"></div>
+            <hr class="my-4">
+
+            <div class="text-right">
+                <div class="h4 text-danger1 text-left">
+                    <input type="hidden" th:value="${item.price}" id="price" name="price">
+                    <span th:text="${item.price}"></span>원
+                </div>
+                <div class="input-group w-50">
+                    <div class="input-group-prepend">
+                    </div>
+                </div>
+            </div>
+
+
+            <span id="ratingText" th:text="${item.rating}"></span>
+            <div class="star-rating"  th:if="${item.rating}== 0">
+                <span>☆</span><span>☆</span><span>☆</span><span>☆</span><span>☆</span>
+            </div>
+            <div class="star-rating"  th:if="${item.rating} >= 0.01 and ${item.rating} <= 1">
+                <span>★</span><span>☆</span><span>☆</span><span>☆</span><span>☆</span>
+            </div>
+            <div class="star-rating"  th:if="${item.rating} >= 1.01 and ${item.rating} <= 2">
+                <span>★</span><span>★</span><span>☆</span><span>☆</span><span>☆</span>
+            </div>
+            <div class="star-rating"  th:if="${item.rating} >= 2.01 and ${item.rating} <= 3">
+                <span>★</span><span>★</span><span>★</span><span>☆</span><span>☆</span>
+            </div>
+            <div class="star-rating"  th:if="${item.rating} >= 3.01 and ${item.rating} <= 4">
+                <span>★</span><span>★</span><span>★</span><span>★</span><span>☆</span>
+            </div>
+            <div class="star-rating"  th:if="${item.rating} >= 4.01 and ${item.rating} <= 5">
+                <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+            </div>
+
+            <span th:text="${item.ratingCount} + '개 상품평'"></span>
+            <hr class="my-4">
+            <div class="form-group">
+                재고 선택 SIZE:
+                <select id="custom-select">
+                    <th:block th:each="issm,status:${sizeStockNumbers}">
+                        <option th:value="${issm.itemSize}">[[${issm.itemSize}]] &nbsp; 재고: [[${issm.stockNumber}]]</option>
+                    </th:block>
+                </select>
+            </div>
+            <div class="input-group w-50">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">구매 수량</span>
+                </div>
+                <input type="number" name="count" id="count" class="formControl" value="1" min="1">
+            </div>
+            <div th:if="${item.itemSellStatus == T(com.shop.constant.ItemSellStatus).SELL}" class="text-right">
+                <button type="button" class="btn btn-light border border-primary btn-lg" onclick="addCart()">장바구니 담기</button>
+                <button type="button" class="btn btn-primary btn-lg" onclick="requestPay()">주문하기</button>
+            </div>
+            <div th:unless="${item.itemSellStatus == T(com.shop.constant.ItemSellStatus).SELL}" class="text-right">
+                <button type="button" class="btn btn-danger btn-lg">품절</button>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="jumbotron jumbotron-fluid mgt-30">
+        <div class="container">
+            <h4 class="display-5">상품 상세 설명</h4>
+            <hr class="my-4">
+            <p class="lead" th:text="${item.itemDetail}"></p>
+        </div>
+    </div>
+
+    <div th:each="itemImg : ${item.itemImgDtoList}" class="text-center">
+        <img th:if="${not #strings.isEmpty(itemImg.imgUrl)}" th:src="${itemImg.imgUrl}" class="rounded mgb-15" width="800">
+    </div>
+
+</div>
+
+</html>

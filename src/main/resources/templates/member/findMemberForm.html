@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout1}">
+<head>
+    <meta charset="UTF-8">
+    <title>비밀번호 찾기</title>
+</head>
+
+<body>
+<div id="container" layout:fragment="content">
+    <form role="form" class="text-start" method="post" name="sendEmail" action="/members/sendEmail">
+        <h1 class="title">비밀번호 찾기</h1>
+        <div class="login-form">
+            <div class="form-group">
+                <input type="email" id="email" name="memberEmail" class="form-control" placeholder="회원가입시 입력했던 이메일을 입력하세요." style="width:400px; margin-left:50px; margin-top:40px;" required>
+                <p style="margin-left:80px; margin-top:20px;">입력한 이메일로 임시 비밀번호가 전송됩니다!</p>
+            </div>
+            <p th:if="${loginErrorMsg}" class="error" th:text="${loginErrorMsg}"></p>
+            <div class="button_container">
+                <button type="button" id="checkEmail" class="button" style="margin-top:20px">&nbsp;&nbsp;비밀번호 발송&nbsp;&nbsp;</button>
+                <br>
+            </div>
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+        </div>
+    </form>
+</div>
+</body>
+
+<th:block layout:fragment="script">
+    <script type="text/javascript">
+        $(document).on('click', '#checkEmail', function() {
+            const email = $("#email").val();
+
+            if (email == "" || email == null || email == undefined) {
+                alert("이메일을 입력해 주세요!");
+                return false;
+            }
+
+            $.ajax({
+                url: "/members/findId",
+                type: "post",
+                data: { 'memberEmail': email },
+                dataType: "text",
+                success: function(result) {
+                    if (result === 'null') {
+                        alert('가입되지 않은 이메일입니다!');
+                    } else {
+                        alert('임시비밀번호를 전송했습니다.');
+                        document.forms["sendEmail"].submit();
+                    }
+                },
+                error: function(xhr) {
+                    alert("에러코드 = " + xhr.status);
+                }
+            });
+        });
+    </script>
+</th:block>
+</html>

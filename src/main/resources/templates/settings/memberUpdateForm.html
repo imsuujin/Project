@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout1}">
+
+<head>
+    <meta charset="UTF-8">
+    <title>회원 정보 수정</title>
+
+    <!-- 사용자 CSS 추가 -->
+    <th:block layout:fragment="css">
+        <style>
+            .fieldError {
+                color: #bd2130;
+            }
+            .card-body{
+                flex: 1 1 auto;
+                padding: var(--bs-card-spacer-y) var(--bs-card-spacer-x);
+                color: black;
+                width: 1000px;
+                margin-left: 610px;
+            }
+        </style>
+    </th:block>
+    <script src="https://ssl.daumcdn.net/dmaps/map_js_init/postcode.v2.js"></script>
+</head>
+
+<body>
+<!-- 메인 콘텐츠 영역 -->
+<div layout:fragment="content" style="margin-top: 120px;">
+    <div class="card">
+        <div class="card-body">
+            <form id="updateForm" th:action="@{/members/updateForm}" method="post" th:object="${memberUpdateDto}">
+                <!-- CSRF 토큰 추가 -->
+<!--                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />-->
+
+                <!-- 이메일 -->
+                <div class="form-group my-3">
+                    <label for="email" class="form-label">이메일</label>
+                    <input type="text" id="email" name="email" class="form-control" th:field="*{email}" readonly />
+                </div>
+
+
+
+
+                <!-- 이름 -->
+                <div class="form-group my-3">
+                    <label for="name" class="form-label">이름</label>
+                    <input type="text" id="name" name="name" class="form-control" th:field="*{name}" />
+                    <p th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="fieldError"></p>
+                </div>
+
+                <!-- 전화번호 -->
+                <div class="form-group my-3">
+                    <label for="phone" class="form-label">전화번호</label>
+                    <input type="text" id="phone" name="phone" class="form-control" th:field="*{phone}" placeholder="전화번호를 입력해주세요">
+                    <p th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}" class="fieldError"></p>
+                </div>
+
+                <!-- 우편번호 -->
+                <div class="form-group my-3">
+                    <label for="address" class="form-label">우편번호</label>
+                    <div class="input-group">
+                        <input type="text" id="address" name="address" class="form-control" th:field="*{address}" placeholder="우편번호를 입력해주세요" readonly>
+                        <div class="input-group-append">
+                            <button type="button" class="btn btn-primary" onclick="findPostcode()">우편번호 찾기</button>
+                        </div>
+                    </div>
+                    <p th:if="${#fields.hasErrors('address')}" th:errors="*{address}" class="fieldError"></p>
+                </div>
+
+                <!-- 도로명 주소 -->
+                <div class="form-group my-3">
+                    <label for="streetAddress" class="form-label">도로명 주소</label>
+                    <input type="text" id="streetAddress" name="streetAddress" class="form-control" th:value="*{streetAddress}" placeholder="도로명 주소를 입력해주세요" readonly>
+                    <p th:if="${#fields.hasErrors('streetAddress')}" th:errors="*{streetAddress}" class="fieldError"></p>
+                </div>
+
+                <!-- 상세 주소 -->
+                <div class="form-group my-3">
+                    <label for="detailAddress" class="form-label">상세 주소</label>
+                    <input type="text" id="detailAddress" name="detailAddress" class="form-control" th:field="*{detailAddress}" placeholder="상세 주소를 입력해주세요">
+                    <p th:if="${#fields.hasErrors('detailAddress')}" th:errors="*{detailAddress}" class="fieldError"></p>
+                </div>
+
+                <!-- 홈으로 -->
+                <div class="text-center my-3">
+                    <a href="/" class="btn btn-secondary">홈으로</a>
+                    <button type="submit" class="btn btn-primary">회원 정보 수정</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- jQuery 라이브러리 추가 -->
+
+<th:block layout:fragment="script">
+    <script>
+
+
+        function findPostcode() {
+            new daum.Postcode({
+                oncomplete: function(data) {
+                    // 우편번호와 주소 정보를 해당 필드에 넣기
+                    $('#address').val(data.zonecode);
+                    $('#streetAddress').val(data.roadAddress);
+                }
+            }).open();
+        }
+    </script>
+</th:block>
+</body>
+</html>
